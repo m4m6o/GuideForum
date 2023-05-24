@@ -38,10 +38,13 @@ def new_topic(request):
             new_topic.owner = request.user
             new_topic.save()
 
-            tags = form.cleaned_data['tags'].split(',')
+            tags_str = form.cleaned_data['tags']
+            tags_str = tags_str.strip('[]')
+            tags_str = tags_str.replace("'", "")
+            tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
 
             for tag_name in tags:
-                tag, _ = models.Tag.objects.get_or_create(name=tag_name.strip())
+                tag, _ = models.Tag.objects.get_or_create(name=tag_name)
                 new_topic.tags.add(tag)
 
             return HttpResponseRedirect(reverse('topics'))
@@ -50,6 +53,8 @@ def new_topic(request):
 
     context = {'form': form}
     return render(request, 'new_topic.html', context)
+
+
 
 
 @login_required

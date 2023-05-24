@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import include, static
+from django.conf.urls import include
+from django.conf.urls.static import static, serve
 from django.conf import settings
 import users
 from GuideForum import views
@@ -32,4 +33,4 @@ urlpatterns = [
     path('new_topic/', views.new_topic, name='new_topic'),
     path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
     path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, view=serve)
