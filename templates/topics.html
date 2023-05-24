@@ -5,7 +5,7 @@
     <ul>
         {% for topic in topics %}
             <li>
-                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner }}</a>
+                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner }} (added {{ topic.date_added|date:'M d, Y H:i' }})</a>
             </li>
         {% empty %}
             <li>No topics have been added yet</li>

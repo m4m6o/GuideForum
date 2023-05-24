@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.conf.urls import include
+from django.conf.urls import include, static
+from django.conf import settings
 import users
 from GuideForum import views
 
@@ -27,6 +28,7 @@ urlpatterns = [
     path('topics/', views.topics, name='topics'),
     path('my_topics/', views.my_topics, name='my_topics'),
     path('topics/<int:topic_id>/', views.topic, name='topic'),
+    path("select2/", include("django_select2.urls")),
     path('new_topic/', views.new_topic, name='new_topic'),
     path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
     path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),

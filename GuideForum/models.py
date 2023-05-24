@@ -3,13 +3,24 @@ from django.contrib.auth.models import User
 
 
 # Create your models here.
-class Topic(models.Model):
-    text = models.CharField(max_length=200)
-    date_added = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, default="1")
+class Tag(models.Model):
+    name = models.CharField(max_length=30, blank=True, unique=True)
 
     def __str__(self):
-        return self.text
+        return self.name
+
+
+class Topic(models.Model):
+    title = models.CharField(max_length=200)
+    date_added = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, default="1")
+    text = models.TextField()
+    rating = models.IntegerField(default=0)
+    tags = models.ManyToManyField(Tag)
+    preview = models.ImageField(upload_to='previews/', default='previews/blank.png')
+
+    def __str__(self):
+        return self.title
 
 
 class Entry(models.Model):

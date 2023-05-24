@@ -1,6 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
     <p>Topic: {{ topic }}</p>
+    <img src="{{ topic.preview.url }}">
+    <p>Owner: {{ topic.owner }}</p>
+    <p>Date_added: {{ topic.date_added }}</p>
+    <p>Tags:</p>
+    <ul>
+        {% for tag in topic.tags.all %}
+            <li>
+                <p>{{ tag }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <p>{{ topic.text }}</p>
     <p>Entries:</p>
     <p>
         <a href="{% url 'new_entry' topic.id %}">Add new entry</a>

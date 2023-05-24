@@ -5,6 +5,11 @@ from django.contrib.auth.decorators import login_required
 from . import models
 from .forms import TopicForm, EntryForm
 
+if not models.Tag.objects.all().exists():  # Проверка на пустоту
+    tags = ['Health', 'Video games', 'Cooking', 'Work', 'Robotics']
+    for tag_name in tags:
+        models.Tag.objects.create(name=tag_name)
+
 
 # Create your views here.
 def index(request):
@@ -26,15 +31,23 @@ def topic(request, topic_id):
 
 @login_required
 def new_topic(request):
-    if request.method != 'POST':
-        form = TopicForm()
-    else:
-        form = TopicForm(data=request.POST)
+    if request.method == 'POST':
+        form = TopicForm(request.POST, request.FILES)
         if form.is_valid():
             new_topic = form.save(commit=False)
             new_topic.owner = request.user
             new_topic.save()
+
+            tags = form.cleaned_data['tags'].split(',')
+
+            for tag_name in tags:
+                tag, _ = models.Tag.objects.get_or_create(name=tag_name.strip())
+                new_topic.tags.add(tag)
+
             return HttpResponseRedirect(reverse('topics'))
+    else:
+        form = TopicForm()
+
     context = {'form': form}
     return render(request, 'new_topic.html', context)
 
