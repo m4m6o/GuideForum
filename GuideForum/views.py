@@ -7,12 +7,6 @@ from .forms import TopicForm, EntryForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 
-if not models.Tag.objects.all().exists():  # Проверка на пустоту
-    tags = ['Health', 'Video games', 'Cooking', 'Work', 'Robotics']
-    for tag_name in tags:
-        models.Tag.objects.create(name=tag_name)
-
-
 # Create your views here.
 def index(request):
     return render(request, "index.html")
@@ -115,6 +109,11 @@ def my_topics(request):
 
 @login_required()
 def user_profile(request, user_id):
-    user = User.objects.get(id=user_id)
-    context = {'user': user}
+    user_profile = models.UserProfile.objects.get(user_id=user_id)
+    if request.method == 'POST':
+        profile_picture = request.FILES.get('profile_picture')
+        if profile_picture:
+            user_profile.profile_picture = profile_picture
+            user_profile.save()
+    context = {'user_profile': user_profile}
     return render(request, 'user_profile.html', context)
