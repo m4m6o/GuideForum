@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from . import models
 from .forms import TopicForm, EntryForm
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 
 if not models.Tag.objects.all().exists():  # Проверка на пустоту
     tags = ['Health', 'Video games', 'Cooking', 'Work', 'Robotics']
@@ -110,3 +111,10 @@ def my_topics(request):
     topics = models.Topic.objects.filter(owner=request.user).order_by('date_added')
     context = {'topics': topics}
     return render(request, 'topics.html', context)
+
+
+@login_required()
+def user_profile(request, user_id):
+    user = User.objects.get(id=user_id)
+    context = {'user': user}
+    return render(request, 'user_profile.html', context)

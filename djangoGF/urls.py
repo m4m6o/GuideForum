@@ -28,6 +28,7 @@ urlpatterns = [
     path('', views.index, name='homepage'),
     path('topics/', views.topics, name='topics'),
     path('my_topics/', views.my_topics, name='my_topics'),
+    path('users/<int:user_id>/', views.user_profile, name='user_profile'),
     path('topics/<int:topic_id>/', views.topic, name='topic'),
     path('topic/<int:topic_id>/like/', views.like_topic, name='like_topic'),
     path("select2/", include("django_select2.urls")),

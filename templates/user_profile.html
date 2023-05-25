@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p>Страница пользователя {{ user.username }}</p>
+    <p>Его гайды:</p>
+    {% for topic in user.topic_set.all %}
+        <a href="{% url 'topic' topic.id %}">{{ topic.title }}</a>
+    {% empty %}
+        <p>No topics found.</p>
+    {% endfor %}
+{% endblock content %}
