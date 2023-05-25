@@ -16,7 +16,8 @@ import os
 
 
 def index(request):
-    return render(request, "index.html")
+    topics = models.Topic.objects.order_by('-date_added')
+    return render(request, "topics.html", {'topics': topics})
 
 
 def topics(request):

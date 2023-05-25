@@ -1,37 +1,136 @@
 {% extends "base.html" %}
 {% block content %}
-    <p>Topics</p>
-    <form method="GET" action="{% url 'topics' %}">
-        <label for="search-input">Search topics:</label>
-        <input type="text" id="search-input" name="q" placeholder="Search topics" value="{{ query }}">
-        <button type="submit">Search</button>
-    </form>
-    <!-- Tag Filter Buttons -->
-    <div>
-        <p>Filter by tags:</p>
-        {% for tag in tags %}
-            {% if tag.id in selected_tags %}
-                <a href="{% url 'topics' %}?q=
-                        {{ query }}{% for selected_tag in selected_tags %}{% if selected_tag != tag.id %}&tag={{ selected_tag }}{% endif %}{% endfor %}"
-                   class="tag-button selected">{{ tag.name }} (selected)</a>
-            {% else %}
-                <a href="{% url 'topics' %}?q=
-                        {{ query }}{% for selected_tag in selected_tags %}&tag={{ selected_tag }}{% endfor %}&tag={{ tag.id }}"
-                   class="tag-button">{{ tag.name }}</a>
-            {% endif %}
-        {% empty %}
-            <p>No tags found</p>
-        {% endfor %}
+    <style>
+        /* Add this CSS to your custom CSS file */
+
+        /* Reduce left and right margins of the container */
+        .container {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 100%;
+        }
+
+        /* Adjust the width of the filter column */
+        .col-md-2 {
+            flex: 0 0 20%;
+            max-width: 20%;
+        }
+
+        /* Adjust the width of the topic display column */
+        .col-md-8 {
+            flex: 0 0 60%;
+            max-width: 60%;
+        }
+
+        /* Reduce the width of the topic cards */
+        .card {
+            width: 100%;
+        }
+
+        /* Adjust the size of the topic preview image */
+        .topic-preview {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Center the topic preview image within the card */
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Adjust the width of the "Add a new topic" column */
+        .col-md-2:last-child {
+            flex: 0 0 20%;
+            max-width: 20%;
+        }
+
+        .topic-preview {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Adjust the position of the "Add a new topic" button */
+        .add-topic-button {
+            margin-left: auto;
+            margin-right: 20px;
+        }
+
+    </style>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1>Topics</h1>
+                <form class="mb-3 d-flex" method="GET" action="{% url 'topics' %}">
+                    <div class="form-group flex-grow-1 mr-2">
+                        <label for="search-input"></label>
+                        <input type="text" id="search-input" name="q" class="form-control form-control-lg"
+                               placeholder="Search topics"
+                               value="{{ query }}">
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-lg">Search</button>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 bg-light">
+                <div class="p-3">
+                    <!-- Tag Filter Buttons -->
+                    <h3>Filter by tags:</h3>
+                    {% for tag in tags %}
+                        {% if tag.id in selected_tags %}
+                            <a href="{% url 'topics' %}?q={{ query }}{% for selected_tag in selected_tags %}{% if selected_tag != tag.id %}&tag={{ selected_tag }}{% endif %}{% endfor %}"
+                               class="btn btn-primary tag-button selected">{{ tag.name }} (selected)</a>
+                        {% else %}
+                            <a href="{% url 'topics' %}?q={{ query }}{% for selected_tag in selected_tags %}&tag={{ selected_tag }}{% endfor %}&tag={{ tag.id }}"
+                               class="btn btn-outline-primary tag-button">{{ tag.name }}</a>
+                        {% endif %}
+                    {% empty %}
+                        <p>No tags found</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="container">
+                    <div class="row">
+                        {% for topic in topics %}
+                            <div class="col-md-4">
+                                <div class="card mb-4 shadow-sm">
+                                    <img class="topic-preview" src="{{ topic.preview.url }}" alt="Topic preview">
+                                    <div class="card-body">
+                                        {% if topic.description %}
+                                            <p class="card-text">{{ topic.description }}</p>
+                                        {% else %}
+                                            <p class="card-text">{{ topic }}</p>
+                                        {% endif %}
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="btn-group">
+                                                <a href="{% url 'topic' topic.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                <a href="{% url 'user_profile' topic.owner_id %}" class="btn btn-sm btn-outline-secondary">See {{ topic.owner.user.username }}</a>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <small class="text-primary">{{ topic.rating }}</small>
+                                        </div>
+                                        <div class="text-muted">
+                                            <small class="text-muted">{{ topic.date_added|date:'M d, Y H:i' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <li>No topics have been added yet</li>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 bg-light">
+                <div class="p-3">
+                    <a href="{% url 'new_topic' %}" class="btn btn-outline-primary add-topic-button">Add a new topic</a>
+                </div>
+            </div>
+        </div>
     </div>
-    <ul>
-        {% for topic in topics %}
-            <li>
-                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner.user.username }}
-                    (added {{ topic.date_added|date:'M d, Y H:i' }})</a>
-            </li>
-        {% empty %}
-            <li>No topics have been added yet</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'new_topic' %}">Add a new topic</a>
 {% endblock content %}
