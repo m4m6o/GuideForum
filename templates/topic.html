@@ -33,11 +33,14 @@
             <button type="submit" class="btn btn-primary">Like</button>
         {% endif %}
     </form>
-    {% if request.user.id == topic.owner_id %}
-        <form method="post" enctype="multipart/form-data">
+    {% if can_edit %}
+        {% if topic.id %}
+            <a href="{% url 'edit_topic' topic_id=topic.id %}">Edit Topic</a>
+        {% endif %}
+        <form method="post" action="{% url 'delete_topic' topic.id %}"
+              onsubmit="return confirm('Are you sure you want to delete this topic?');">
             {% csrf_token %}
-            <input type="file" name="preview">
-            <input type="submit" value="Изменить превью">
+            <input type="submit" value="Delete Topic">
         </form>
     {% endif %}
     <p>Entries:</p>

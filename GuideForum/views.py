@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
+
+from djangoGF import settings
 from . import models
 from .forms import TopicForm, EntryForm
 from django.shortcuts import get_object_or_404
@@ -10,6 +12,7 @@ from django.db.models import Q, Count
 import operator
 from functools import reduce
 from operator import itemgetter
+import os
 
 
 def index(request):
@@ -42,15 +45,60 @@ def topics(request):
 
 
 def topic(request, topic_id):
-    topic = models.Topic.objects.get(id=topic_id)
+    topic = get_object_or_404(models.Topic, id=topic_id)
     entries = topic.entry_set.order_by('-date_added')
+
     if request.method == 'POST' and request.user.id == topic.owner_id:
         preview = request.FILES.get('preview')
         if preview:
             topic.preview = preview
             topic.save()
-    context = {'topic': topic, 'entries': entries}
+
+    can_edit = False
+    if request.user.is_authenticated and request.user.id == topic.owner_id:
+        can_edit = True
+
+    context = {'topic': topic, 'entries': entries, 'can_edit': can_edit}
     return render(request, 'topic.html', context)
+
+
+@login_required
+def edit_topic(request, topic_id):
+    topic = get_object_or_404(models.Topic, id=topic_id)
+    if request.method == 'POST':
+        form = TopicForm(request.POST, request.FILES, instance=topic)
+        if form.is_valid():
+            edited_topic = form.save(commit=False)
+            edited_topic.tags.clear()  # Удаляем все текущие теги
+
+            tags_str = form.cleaned_data['tags']
+            tags_str = tags_str.strip('[]')
+            tags_str = tags_str.replace("'", "")
+            tags = [tag.strip() for tag in tags_str.split(',') if tag.strip()]
+
+            for tag_name in tags:
+                tag, _ = models.Tag.objects.get_or_create(name=tag_name)
+                edited_topic.tags.add(tag)
+
+            edited_topic.save()
+
+            return redirect('topic', topic_id=edited_topic.id)
+    else:
+        form = TopicForm(instance=topic)
+
+    return render(request, 'edit_topic.html', {'form': form, 'topic': topic})
+
+
+@login_required
+def delete_topic(request, topic_id):
+    topic = get_object_or_404(models.Topic, id=topic_id)
+    if request.user.id != topic.owner_id:
+        raise Http404
+    if request.method == 'POST':
+        topic.delete()
+        return redirect('topics')
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
 
 @login_required

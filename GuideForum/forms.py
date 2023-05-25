@@ -17,10 +17,21 @@ class TopicForm(forms.ModelForm):
 
     class Meta:
         model = models.Topic
-        fields = ['title', 'description', 'tags', 'preview', 'text']  # Include the 'description' field
-        labels = {'title':       'Title of your guide',
-                  'description': 'Short description',
-                  'text':        'Briefly explain your guide here'}
+        fields = ['title', 'description', 'tags', 'preview', 'text']
+        labels = {
+            'title': 'Title of your guide',
+            'description': 'Short description',
+            'text': 'Briefly explain your guide here'
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        clear_preview = self.cleaned_data.get('clear_preview')
+
+        if clear_preview:
+            cleaned_data['preview'] = None
+
+        return cleaned_data
 
 
 class EntryForm(forms.ModelForm):

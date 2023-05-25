@@ -23,16 +23,18 @@ import users
 from GuideForum import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path('users/', include(('users.urls', 'users'), namespace='users')),
-    path('', views.index, name='homepage'),
-    path('topics/', views.topics, name='topics'),
-    path('my_topics/', views.my_topics, name='my_topics'),
-    path('user/<int:user_id>/', views.user_profile, name='user_profile'),
-    path('topics/<int:topic_id>/', views.topic, name='topic'),
-    path('topic/<int:topic_id>/like/', views.like_topic, name='like_topic'),
-    path("select2/", include("django_select2.urls")),
-    path('new_topic/', views.new_topic, name='new_topic'),
-    path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
-    path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, view=serve)
+                  path("admin/", admin.site.urls),
+                  path('users/', include(('users.urls', 'users'), namespace='users')),
+                  path('', views.index, name='homepage'),
+                  path('topics/', views.topics, name='topics'),
+                  path('my_topics/', views.my_topics, name='my_topics'),
+                  path('user/<int:user_id>/', views.user_profile, name='user_profile'),
+                  path('topic/<int:topic_id>/', views.topic, name='topic'),
+                  path('topic/<int:topic_id>/like/', views.like_topic, name='like_topic'),
+                  path('topic/<int:topic_id>/edit/', views.edit_topic, name='edit_topic'),
+                  path('topic/<int:topic_id>/delete/', views.delete_topic, name='delete_topic'),
+                  path("select2/", include("django_select2.urls")),
+                  path('new_topic/', views.new_topic, name='new_topic'),
+                  path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),
+                  path('edit_entry/<int:entry_id>/', views.edit_entry, name='edit_entry'),
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, view=serve)
