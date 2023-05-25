@@ -29,6 +29,7 @@ urlpatterns = [
     path('topics/', views.topics, name='topics'),
     path('my_topics/', views.my_topics, name='my_topics'),
     path('topics/<int:topic_id>/', views.topic, name='topic'),
+    path('topic/<int:topic_id>/like/', views.like_topic, name='like_topic'),
     path("select2/", include("django_select2.urls")),
     path('new_topic/', views.new_topic, name='new_topic'),
     path('new_entry/<int:topic_id>/', views.new_entry, name='new_entry'),

@@ -13,6 +13,16 @@
         {% endfor %}
     </ul>
     <p>{{ topic.text }}</p>
+    <p>{{ topic.rating }}</p>
+    <form action="{% url 'like_topic' topic.id %}" method="POST">
+        {% csrf_token %}
+        {% if request.user in topic.likes.all %}
+            <button type="submit" class="btn btn-primary">Liked</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary">Like</button>
+        {% endif %}
+    </form>
+
     <p>Entries:</p>
     <p>
         <a href="{% url 'new_entry' topic.id %}">Add new entry</a>

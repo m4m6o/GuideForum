@@ -1,9 +1,10 @@
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from . import models
 from .forms import TopicForm, EntryForm
+from django.shortcuts import get_object_or_404
 
 if not models.Tag.objects.all().exists():  # Проверка на пустоту
     tags = ['Health', 'Video games', 'Cooking', 'Work', 'Robotics']
@@ -30,6 +31,22 @@ def topic(request, topic_id):
 
 
 @login_required
+def like_topic(request, topic_id):
+    if request.method == 'POST':
+        topic = get_object_or_404(models.Topic, id=topic_id)
+        if request.user in topic.likes.all():
+            topic.likes.remove(request.user)
+            topic.rating -= 1
+        else:
+            topic.likes.add(request.user)
+            topic.rating += 1
+        topic.save()
+        return redirect('topic', topic_id=topic_id)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required
 def new_topic(request):
     if request.method == 'POST':
         form = TopicForm(request.POST, request.FILES)
@@ -53,8 +70,6 @@ def new_topic(request):
 
     context = {'form': form}
     return render(request, 'new_topic.html', context)
-
-
 
 
 @login_required
