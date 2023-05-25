@@ -17,8 +17,10 @@ class TopicForm(forms.ModelForm):
 
     class Meta:
         model = models.Topic
-        fields = ['title', 'tags', 'preview', 'text']
-        labels = {'title': 'Title of your guide', 'text': 'Briefly explain your guide here'}
+        fields = ['title', 'description', 'tags', 'preview', 'text']  # Include the 'description' field
+        labels = {'title':       'Title of your guide',
+                  'description': 'Short description',
+                  'text':        'Briefly explain your guide here'}
 
 
 class EntryForm(forms.ModelForm):

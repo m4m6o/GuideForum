@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404, JsonResponse
 from django.urls import reverse
@@ -6,21 +7,36 @@ from . import models
 from .forms import TopicForm, EntryForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+import operator
+from functools import reduce
 
-# Create your views here.
+
 def index(request):
     return render(request, "index.html")
 
 
 def topics(request):
-    topics = models.Topic.objects.order_by('date_added')
-    context = {'topics': topics}
+    query = request.GET.get('q', '')
+    if query:
+        search_terms = query.split()
+        conditions = Q()  # Создаем пустое условие Q
+        for term in search_terms:
+            conditions &= (Q(title__icontains=term) | Q(description__icontains=term) | Q(text__icontains=term))
+        topics = models.Topic.objects.filter(conditions).order_by('date_added')
+    else:
+        topics = models.Topic.objects.order_by('date_added')
+    context = {'topics': topics, 'query': query}
     return render(request, 'topics.html', context)
 
 
 def topic(request, topic_id):
     topic = models.Topic.objects.get(id=topic_id)
     entries = topic.entry_set.order_by('-date_added')
+    if request.method == 'POST' and request.user.id == topic.owner_id:
+        preview = request.FILES.get('preview')
+        if preview:
+            topic.preview = preview
+            topic.save()
     context = {'topic': topic, 'entries': entries}
     return render(request, 'topic.html', context)
 
@@ -47,7 +63,7 @@ def new_topic(request):
         form = TopicForm(request.POST, request.FILES)
         if form.is_valid():
             new_topic = form.save(commit=False)
-            new_topic.owner = request.user
+            new_topic.owner = models.UserProfile.objects.get(user=request.user)
             new_topic.save()
 
             tags_str = form.cleaned_data['tags']
@@ -87,7 +103,7 @@ def new_entry(request, topic_id):
 def edit_entry(request, entry_id):
     entry = models.Entry.objects.get(id=entry_id)
     topic = entry.topic
-    if topic.owner != request.user:
+    if topic.owner != models.UserProfile.objects.get(user=request.user):
         raise Http404
     if request.method != 'POST':
         form = EntryForm(instance=entry)
@@ -102,7 +118,8 @@ def edit_entry(request, entry_id):
 
 @login_required
 def my_topics(request):
-    topics = models.Topic.objects.filter(owner=request.user).order_by('date_added')
+    user_profile = models.UserProfile.objects.get(user=request.user)
+    topics = models.Topic.objects.filter(owner=user_profile).order_by('date_added')
     context = {'topics': topics}
     return render(request, 'topics.html', context)
 
@@ -110,10 +127,15 @@ def my_topics(request):
 @login_required()
 def user_profile(request, user_id):
     user_profile = models.UserProfile.objects.get(user_id=user_id)
+    topics = models.Topic.objects.filter(owner=models.UserProfile.objects.get(user=user_profile.user))
     if request.method == 'POST':
         profile_picture = request.FILES.get('profile_picture')
         if profile_picture:
             user_profile.profile_picture = profile_picture
             user_profile.save()
-    context = {'user_profile': user_profile}
+        user_description = request.POST.get('user_description')
+        if user_description:
+            user_profile.user_description = user_description
+            user_profile.save()
+    context = {'user_profile': user_profile, 'topics': topics}
     return render(request, 'user_profile.html', context)

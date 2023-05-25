@@ -1,11 +1,15 @@
 {% extends "base.html" %}
-
 {% block content %}
     <p>Topics</p>
+    <form method="GET" action="{% url 'topics' %}">
+        <label for="search-input">Search topics:</label>
+        <input type="text" id="search-input" name="q" placeholder="Search topics" value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
     <ul>
         {% for topic in topics %}
             <li>
-                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner }} (added {{ topic.date_added|date:'M d, Y H:i' }})</a>
+                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner.user.username }} (added {{ topic.date_added|date:'M d, Y H:i' }})</a>
             </li>
         {% empty %}
             <li>No topics have been added yet</li>

@@ -6,9 +6,11 @@
         #id_tags {
             width: 100%;
         }
+
         .select2-container--default .select2-selection--multiple {
             width: 100%;
         }
+
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
             display: inline-block;
         }
@@ -23,6 +25,13 @@
             {{ form.title.label_tag }}
             {{ form.title }}
             {% for error in form.title.errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        <div class="form-group">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {% for error in form.description.errors %}
                 <p class="error">{{ error }}</p>
             {% endfor %}
         </div>

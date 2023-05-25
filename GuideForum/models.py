@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_description = models.TextField(default="bio not added")
     profile_picture = models.ImageField(upload_to='profile_pictures/', default='profile_pictures/blank.png')
 
     def __str__(self):
@@ -19,8 +21,9 @@ class Tag(models.Model):
 
 class Topic(models.Model):
     title = models.CharField(max_length=200)
+    description = models.CharField(max_length=200)
     date_added = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, default="1")
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, default="1")  # Update the owner field
     text = models.TextField()
     rating = models.IntegerField(default=0)
     tags = models.ManyToManyField(Tag)

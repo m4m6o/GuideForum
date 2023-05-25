@@ -1,8 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% load mathfilters %}
     <p>Topic: {{ topic }}</p>
+    <p>Description: {{ topic.description }}</p>
+    <p>Read time: {{ topic.text|length|add:999|div:1000|floatformat:0 }} min read</p>
     <img src="{{ topic.preview.url }}">
-    <p>Owner: <a href="{% url 'user_profile' topic.owner.id %}">{{ topic.owner }}</a></p>
+    <p>Owner:
+        {% if topic.owner %}
+            <a href="{% url 'user_profile' topic.owner.id %}">
+                {{ topic.owner }}
+            </a>
+        {% else %}
+            Unknown
+        {% endif %}
+    </p>
     <p>Date_added: {{ topic.date_added }}</p>
     <p>Tags:</p>
     <ul>
@@ -22,7 +33,13 @@
             <button type="submit" class="btn btn-primary">Like</button>
         {% endif %}
     </form>
-
+    {% if request.user.id == topic.owner_id %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="preview">
+            <input type="submit" value="Изменить превью">
+        </form>
+    {% endif %}
     <p>Entries:</p>
     <p>
         <a href="{% url 'new_entry' topic.id %}">Add new entry</a>

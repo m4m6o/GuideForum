@@ -1,19 +1,22 @@
 {% extends 'base.html' %}
 {% block content %}
     <p>Страница пользователя {{ user_profile.user.username }}</p>
-
-    <!-- Отображение текущей фотографии профиля -->
+    <p>Bio: {{ user_profile.user_description }}</p>
     <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
-
-    <!-- Форма для загрузки новой фотографии -->
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="profile_picture">
-        <input type="submit" value="Загрузить">
-    </form>
-
+    {% if request.user == user_profile.user %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="profile_picture">
+            <input type="submit" value="Загрузить">
+        </form>
+        <form method="post">
+            {% csrf_token %}
+            <textarea name="user_description">{{ user_profile.user_description }}</textarea>
+            <input type="submit" value="Изменить информацию о себе">
+        </form>
+    {% endif %}
     <p>Гайды:</p>
-    {% for topic in user_profile.user.topic_set.all %}
+    {% for topic in topics %}
         <a href="{% url 'topic' topic.id %}">{{ topic.title }}</a>
     {% empty %}
         <p>No topics found.</p>
