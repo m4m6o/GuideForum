@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, Http404, JsonResponse
 from django.urls import reverse
@@ -7,8 +6,10 @@ from . import models
 from .forms import TopicForm, EntryForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.db.models import Q, Count
 import operator
 from functools import reduce
+from operator import itemgetter
 
 
 def index(request):
@@ -17,15 +18,26 @@ def index(request):
 
 def topics(request):
     query = request.GET.get('q', '')
+    tag_ids = request.GET.getlist('tag')  # Retrieve multiple tag IDs as a list
+    selected_tags = [int(tag_id) for tag_id in tag_ids]  # Convert tag IDs to integers
+
     if query:
         search_terms = query.split()
-        conditions = Q()  # Создаем пустое условие Q
+        conditions = Q()
         for term in search_terms:
             conditions &= (Q(title__icontains=term) | Q(description__icontains=term) | Q(text__icontains=term))
-        topics = models.Topic.objects.filter(conditions).order_by('date_added')
+        topics = models.Topic.objects.filter(conditions)
     else:
-        topics = models.Topic.objects.order_by('date_added')
-    context = {'topics': topics, 'query': query}
+        topics = models.Topic.objects.all()
+
+    if selected_tags:
+        tags = models.Tag.objects.filter(id__in=selected_tags)
+        topics = topics.filter(tags__in=tags)
+
+    topics = topics.annotate(tag_count=Count('tags')).order_by('-tag_count', '-rating', 'date_added')
+    tags = models.Tag.objects.annotate(topic_count=Count('topic')).order_by('name')
+
+    context = {'topics': topics, 'tags': tags, 'query': query, 'selected_tags': selected_tags}
     return render(request, 'topics.html', context)
 
 

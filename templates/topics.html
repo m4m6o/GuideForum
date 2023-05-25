@@ -6,10 +6,28 @@
         <input type="text" id="search-input" name="q" placeholder="Search topics" value="{{ query }}">
         <button type="submit">Search</button>
     </form>
+    <!-- Tag Filter Buttons -->
+    <div>
+        <p>Filter by tags:</p>
+        {% for tag in tags %}
+            {% if tag.id in selected_tags %}
+                <a href="{% url 'topics' %}?q=
+                        {{ query }}{% for selected_tag in selected_tags %}{% if selected_tag != tag.id %}&tag={{ selected_tag }}{% endif %}{% endfor %}"
+                   class="tag-button selected">{{ tag.name }} (selected)</a>
+            {% else %}
+                <a href="{% url 'topics' %}?q=
+                        {{ query }}{% for selected_tag in selected_tags %}&tag={{ selected_tag }}{% endfor %}&tag={{ tag.id }}"
+                   class="tag-button">{{ tag.name }}</a>
+            {% endif %}
+        {% empty %}
+            <p>No tags found</p>
+        {% endfor %}
+    </div>
     <ul>
         {% for topic in topics %}
             <li>
-                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner.user.username }} (added {{ topic.date_added|date:'M d, Y H:i' }})</a>
+                <a href="{% url 'topic' topic.id %}">{{ topic }} by {{ topic.owner.user.username }}
+                    (added {{ topic.date_added|date:'M d, Y H:i' }})</a>
             </li>
         {% empty %}
             <li>No topics have been added yet</li>
