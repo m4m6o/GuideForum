@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    'bootstrap3',
+    'bootstrap4',
     'django_select2',
     'mathfilters',
     'widget_tweaks',
@@ -133,6 +133,7 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = '/users/login'
+LOGIN_REDIRECT_URL = 'homepage'
 # LOGOUT_URL = '/users/logout'
 
 BOOTSTRAP3 = {
